@@ -1,0 +1,50 @@
+name: Patch V2.6 sticky options map
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-v26-sticky-options.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch index.html
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          old='.optbadge{display:inline-block;border:1px solid var(--l);border-radius:999px;padding:2px 6px;font-size:.6rem;color:#adb6c0;margin:4px 3px 0 0}'
+          new=old+'.optwork{display:grid;grid-template-columns:.9fr 1.1fr;gap:18px;align-items:start}.optmapbox{position:sticky;top:62px}.optmobile{display:none}#optmap{height:calc(100svh - 92px);min-height:430px;border:1px solid var(--l);border-radius:16px;overflow:hidden;background:#1c222a}.optcap{font-size:.68rem;color:var(--m);margin-top:7px}.optcontent{min-width:0}'
+          s=s.replace(old,new)
+          old='@media(max-width:820px){.summary,.grid,.options{grid-template-columns:1fr}.work{grid-template-columns:1fr;gap:10px}.mapbox{position:sticky;top:57px;z-index:1500;background:#0e1116f8;padding:6px 0 7px;border-bottom:1px solid var(--l)}.mobile{display:flex;justify-content:space-between;align-items:center;font-size:.67rem;color:var(--m);margin-bottom:5px}.mobile div{display:flex;gap:4px}#map{height:24svh;min-height:195px;max-height:225px}.mapbox.big #map{height:47svh;max-height:420px}.cap{display:none}.stop{scroll-margin-top:310px}.tools button,.tools a{padding:5px 7px;font-size:.64rem}}'
+          new='@media(max-width:820px){.summary,.grid,.options{grid-template-columns:1fr}.work,.optwork{grid-template-columns:1fr;gap:10px}.mapbox,.optmapbox{position:sticky;top:57px;z-index:1500;background:#0e1116f8;padding:6px 0 7px;border-bottom:1px solid var(--l)}.mobile,.optmobile{display:flex;justify-content:space-between;align-items:center;font-size:.67rem;color:var(--m);margin-bottom:5px}.mobile div,.optmobile div{display:flex;gap:4px}#map,#optmap{height:24svh;min-height:195px;max-height:225px}.mapbox.big #map,.optmapbox.big #optmap{height:47svh;max-height:420px}.cap,.optcap{display:none}.stop,.opt{scroll-margin-top:310px}.tools button,.tools a,.optmobile button{padding:5px 7px;font-size:.64rem}}'
+          s=s.replace(old,new)
+          old='''<section class="sec" id="options"><div class="title"><h2>🧭 다른 선택지 · 시간 나면</h2><span>현재 일정과 교체/추가 가능</span></div>\n<div class="optfilters">'''
+          new='''<section class="sec" id="options"><div class="title"><h2>🧭 다른 선택지 · 시간 나면</h2><span>현재 일정과 교체/추가 가능</span></div>\n<div class="optwork">\n<aside class="optmapbox">\n<div class="optmobile"><span>🧭 선택지 지도</span><div><button id="optfit">전체 맞춤</button><button id="optsize">지도 크게</button></div></div>\n<div id="optmap"></div>\n<div class="optcap">후보 카드 클릭 → 이 지도에서 위치 확인 · 스크롤 중에도 지도가 고정됩니다.</div>\n</aside>\n<div class="optcontent">\n<div class="optfilters">'''
+          s=s.replace(old,new)
+          marker='</div></section>\n\n<section class="sec" id="usj">'
+          pos=s.find(marker,s.find('<section class="sec" id="options">'))
+          if pos<0: raise SystemExit('options end marker not found')
+          s=s[:pos]+'</div></div></div></section>\n\n<section class="sec" id="usj">'+s[pos+len(marker):]
+          s=s.replace('OSAKA TRIP V2.5 · OPTIONS ADDED','OSAKA TRIP V2.6 · STICKY OPTIONS MAP')
+          old='''function optionFocus(k,e){\n  clear();\n  document.querySelectorAll('.opt').forEach(x=>x.classList.remove('on'));\n  e.classList.add('on');\n  const p=P[k];\n  if(!map.hasLayer(M[k]))M[k].addTo(map);\n  document.getElementById('p'+k)?.classList.add('on');\n  map.flyTo([p[3],p[4]],14,{duration:.4});\n  M[k].openPopup();\n}\ndocument.querySelectorAll('.opt[data-place]').forEach(e=>{\n  e.addEventListener('click',z=>{if(!z.target.closest('a,button'))optionFocus(e.dataset.place,e)})\n});'''
+          new='''const OK=['a','t','b','r','o','v','n','d','c'];\nconst optmap=L.map('optmap',{scrollWheelZoom:false}).setView([34.67,135.5],12);\nL.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(optmap);\nconst OM={};\nOK.forEach(k=>{const p=P[k],ic=L.divIcon({className:'',html:`<div class="marker" id="op${k}"><span>${p[0]}</span></div>`,iconSize:[29,29],iconAnchor:[14,27]});OM[k]=L.marker([p[3],p[4]],{icon:ic}).addTo(optmap).bindPopup(`<b>${p[1]}</b><br><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p[2])}&hl=ko">Google Maps →</a>`,{maxWidth:160})});\nfunction optFit(){optmap.fitBounds(L.latLngBounds(OK.map(k=>[P[k][3],P[k][4]])).pad(.18))}\nfunction optionFocus(k,e){\n  document.querySelectorAll('.opt').forEach(x=>x.classList.remove('on'));\n  document.querySelectorAll('#optmap .marker').forEach(x=>x.classList.remove('on'));\n  e.classList.add('on');\n  const p=P[k];\n  document.getElementById('op'+k)?.classList.add('on');\n  optmap.flyTo([p[3],p[4]],14,{duration:.4});\n  OM[k].openPopup();\n}\ndocument.querySelectorAll('.opt[data-place]').forEach(e=>{\n  e.addEventListener('click',z=>{if(!z.target.closest('a,button'))optionFocus(e.dataset.place,e)})\n});\ndocument.getElementById('optfit').onclick=optFit;\ndocument.getElementById('optsize').onclick=e=>{document.querySelector('.optmapbox').classList.toggle('big');e.target.textContent=document.querySelector('.optmapbox').classList.contains('big')?'지도 작게':'지도 크게';setTimeout(()=>optmap.invalidateSize(),180)};'''
+          s=s.replace(old,new)
+          s=s.replace("addEventListener('resize',()=>map.invalidateSize());render();","addEventListener('resize',()=>{map.invalidateSize();optmap.invalidateSize()});render();setTimeout(()=>{optmap.invalidateSize();optFit()},120);")
+          if 'V2.6 · STICKY OPTIONS MAP' not in s or 'id="optmap"' not in s: raise SystemExit('patch did not apply')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Fix sticky map for options section"
+          git push
