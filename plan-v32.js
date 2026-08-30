@@ -1,0 +1,10 @@
+(()=>{
+if(typeof D==='undefined'||typeof P==='undefined')return;
+const d3=[['09:00','q','구로몬시장','숙소 근처에서 아침 겸 먹거리 구경. 약 1시간.','walking'],['10:30','c','오사카성','공원 산책 + 천수각. 첫 오사카 여행의 대표 관광지.','transit'],['13:00','c','점심 · 오사카성/모리노미야 근처','걷고 난 뒤 여유 있게 점심. 실제 식당은 추후 선정.','walking'],['14:30','m','우메다 · 오사카역','LUCUA·Grand Front 등 쇼핑몰과 카페. USJ 다음날이라 휴식 포함.','transit'],['17:00','m','우메다 스카이빌딩','17시쯤 입장해 해지기 전 풍경부터 야경 전환까지 보는 계획안.','walking'],['18:30','d','우메다 → 도톤보리 이동','스카이빌딩 관람 후 미도스지선 등으로 난바권 복귀.','transit'],['19:15','d','도톤보리 저녁','스시·야키니쿠 등 후보. 리버크루즈 시간에 맞춰 너무 길지 않게.','walking'],['20:00*','d','도톤보리 리버크루즈','약 20분 야간 크루즈 계획안. 실제 승선시간은 예매/현장 상황에 따라 조정.','walking'],['20:30','d','도톤보리 마지막 밤','크루즈 후 야경·간식·쇼핑. 체력에 따라 숙소 복귀.','walking']];
+D[2][0]='DAY 3 · 오사카 핵심 + 야경 크루즈';
+D[2][2].splice(0,D[2][2].length,...d3);
+const dayEl=document.querySelector('.day[data-day="2"]');
+if(!dayEl)return;
+dayEl.innerHTML=`<div class="dh"><h3>${D[2][0]}</h3><span>${D[2][1]}</span></div>`;
+D[2][2].forEach(a=>{const p=P[a[1]],e=document.createElement('article');e.className='stop';e.dataset.day=2;e.innerHTML=`<div class="time">${a[0]}</div><div><strong>${a[2]}</strong><p>${a[3]}</p><div class="act"><a class="loc" target="_blank" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p[2])}&hl=ko">📍 위치</a><a class="go" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(p[2])}&travelmode=${a[4]}&hl=ko">🚇 길찾기</a></div></div>`;e.addEventListener('click',z=>{if(z.target.closest('a'))return;const allStops=[...document.querySelectorAll('.stop')];allStops.forEach(x=>x.classList.remove('on'));e.classList.add('on');if(typeof map!=='undefined'&&typeof M!=='undefined'){const k=a[1],pt=P[k];if(!map.hasLayer(M[k]))M[k].addTo(map);document.getElementById('p'+k)?.classList.add('on');map.flyTo([pt[3],pt[4]],14,{duration:.4});M[k].openPopup();}});dayEl.appendChild(e)});
+})();
