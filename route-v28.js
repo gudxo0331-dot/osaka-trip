@@ -180,6 +180,7 @@
   });
 
   const getGuide=(a,b,m)=>G[`${a}>${b}`]||generic(a,b,m);
+  window.OsakaRouteGuide=getGuide;
   const mainBox=document.querySelector('.mapbox');
   const optBox=document.querySelector('.optmapbox');
 
