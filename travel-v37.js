@@ -14,6 +14,23 @@
     ['14:00 전망대 입장 목표 · 주유패스 입장은 15:00까지','20:00 크루즈는 희망 시간 · 오전 교환한 승선권 시간 우선.','주유패스 구매 미정 · 당일 사용 여부 확인.'],
     ['15:30 귀국편 출발 확정 · TW0322','12:15 공항 이동 계획 · 13:15~13:30 공항 도착 목표. 당일 열차·터미널 확인.']
   ];
+  const memoKey='osakaTravelMemosV1';
+  let memos={};
+  try{const raw=JSON.parse(localStorage.getItem(memoKey)||'{}');if(raw&&typeof raw==='object'&&!Array.isArray(raw))memos=raw;}catch{}
+  function memoId(){const s=D[selectedDay][2][indices[selectedDay]];return JSON.stringify([C.dates[selectedDay],s[1],s[2]]);}
+  function memoValue(s){const value=memos[memoId()];return typeof value==='string'?value:s[3];}
+  function memoEditor(s){return `<details class="travel-route" data-memo-panel><summary>일정 메모 · 작성/수정</summary><label for="travel-memo">이 일정의 메모</label><textarea id="travel-memo" rows="5" style="display:block;box-sizing:border-box;width:100%;margin:8px 0;padding:12px;border:1px solid #ffffff44;border-radius:10px;background:#10151a;color:#f7f2e9;font:inherit;font-size:16px;line-height:1.6;resize:vertical" placeholder="예약 시간이나 챙길 것을 적어두세요">${esc(memoValue(s))}</textarea><div class="travel-controls"><button type="button" data-memo-reset>기본 메모 복원</button><button type="button" data-memo-save>메모 저장</button></div><p class="travel-muted" id="travel-memo-status" role="status" aria-live="polite">메모는 이 브라우저에 저장돼요. 다른 기기와 자동 공유되지 않아요.</p></details>`;}
+  function persistMemo(){
+    const field=root.querySelector('#travel-memo');if(!field)return true;
+    const id=memoId(),value=field.value,status=root.querySelector('#travel-memo-status');
+    try{
+      const latest=JSON.parse(localStorage.getItem(memoKey)||'{}');
+      const next=latest&&typeof latest==='object'&&!Array.isArray(latest)?{...latest}:{...memos};
+      next[id]=value;localStorage.setItem(memoKey,JSON.stringify(next));memos=next;
+      status.textContent='저장했어요 · 이 브라우저에서 다시 열어도 유지돼요.';return true;
+    }catch{status.textContent='저장하지 못했어요. 입력한 내용을 복사해 보관한 뒤 다시 시도하세요.';return false;}
+  }
+  root.addEventListener('input',e=>{if(e.target.id==='travel-memo')persistMemo();});
   function save(){saved.viewDate=C.japanDate();saved.viewDay=selectedDay;saved[selectedDay]={signature:C.signature(D[selectedDay][2]),index:indices[selectedDay]};try{localStorage.setItem(key,JSON.stringify(saved));}catch{storageOK=false;}}
   function setMode(next,updateHash=true){
     mode=next;document.body.classList.toggle('travel-mode',next==='travel');root.hidden=next!=='travel';bar.hidden=false;
@@ -36,7 +53,7 @@
     const flight=selectedDay===0&&i===0,p=P[s[1]],prev=i>0?P[stops[i-1][1]]:P.h,next=stops[i+1];
     const mainUrl=flight?C.place('Gimhae International Airport'):C.directions(p[2],s[4]);
     const planUrl=C.directions(p[2],s[4],prev[2]);
-    return `<section class="travel-current" aria-label="선택한 일정"><div class="travel-card-top"><span>이어서 갈 곳</span><span>${i+1} / ${stops.length}</span></div><div class="travel-time">${esc(s[0])}</div><h2>${esc(s[2])}</h2><div class="travel-actions"><a target="_blank" rel="noopener" href="${esc(mainUrl)}">${flight?'김해공항 위치 보기 ↗':'현재 위치에서 길찾기 ↗'}</a>${!flight&&prev!==p?`<a target="_blank" rel="noopener" href="${esc(planUrl)}">계획 동선: ${esc(prev[1])} → ${esc(p[1])}</a>`:''}</div><div class="travel-next"><span>다음 일정</span><strong>${next?esc(next[0]+' · '+next[2]):'오늘의 마지막 일정이에요'}</strong></div><div class="travel-controls"><button type="button" data-back ${i===0?'disabled':''}>이전 일정</button><button type="button" data-next>${next?'다음 일정으로 →':'오늘 일정 마치기'}</button></div><details class="travel-route"><summary>일정 메모 펼치기</summary><p>${esc(s[3])}</p></details>${routeDetail(i,s)}</section>`;
+    return `<section class="travel-current" aria-label="선택한 일정"><div class="travel-card-top"><span>이어서 갈 곳</span><span>${i+1} / ${stops.length}</span></div><div class="travel-time">${esc(s[0])}</div><h2>${esc(s[2])}</h2><div class="travel-actions"><a target="_blank" rel="noopener" href="${esc(mainUrl)}">${flight?'김해공항 위치 보기 ↗':'현재 위치에서 길찾기 ↗'}</a>${!flight&&prev!==p?`<a target="_blank" rel="noopener" href="${esc(planUrl)}">계획 동선: ${esc(prev[1])} → ${esc(p[1])}</a>`:''}</div><div class="travel-next"><span>다음 일정</span><strong>${next?esc(next[0]+' · '+next[2]):'오늘의 마지막 일정이에요'}</strong></div><div class="travel-controls"><button type="button" data-back ${i===0?'disabled':''}>이전 일정</button><button type="button" data-next>${next?'다음 일정으로 →':'오늘 일정 마치기'}</button></div>${memoEditor(s)}${routeDetail(i,s)}</section>`;
   }
   function food(){
     const source=document.getElementById('food');
@@ -50,6 +67,13 @@
   }
   root.addEventListener('click',e=>{
     const b=e.target.closest('button');if(!b)return;
+    if(b.hasAttribute('data-memo-save')){persistMemo();return;}
+    if(b.hasAttribute('data-memo-reset')){
+      if(!window.confirm('작성한 내용을 지우고 기본 일정 메모로 되돌릴까요?'))return;
+      root.querySelector('#travel-memo').value=D[selectedDay][2][indices[selectedDay]][3];persistMemo();return;
+    }
+    const field=root.querySelector('#travel-memo');
+    if(field&&field.value!==memoValue(D[selectedDay][2][indices[selectedDay]])&&!persistMemo())return;
     if(b.hasAttribute('data-day')){selectedDay=Number(b.dataset.day);save();render(`[data-day="${selectedDay}"]`);}
     else if(b.hasAttribute('data-next')){indices[selectedDay]=Math.min(D[selectedDay][2].length,indices[selectedDay]+1);save();render('[data-next], [data-next-day], [data-first]');}
     else if(b.hasAttribute('data-back')){indices[selectedDay]=Math.max(0,indices[selectedDay]-1);save();render('[data-back]');}
