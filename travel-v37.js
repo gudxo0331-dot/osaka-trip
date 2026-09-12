@@ -3,13 +3,13 @@
   if(typeof D==='undefined'||typeof P==='undefined'||!window.OsakaTravelCore)return;
   const C=window.OsakaTravelCore,root=document.getElementById('travel'),bar=document.getElementById('trip-modebar');
   if(!root||!bar)return;
-  const key='osakaTravelProgressV1';let saved={},storageOK=true,selectedDay=C.dayFor(),mode='travel';
+  const key='osakaTravelProgressV1';let saved={},storageOK=true,selectedDay=C.dayFor(),mode='plan';
   try{const raw=JSON.parse(localStorage.getItem(key)||'{}');if(raw&&typeof raw==='object'&&!Array.isArray(raw))saved=raw;}catch{storageOK=false;}
   if(saved.viewDate===C.japanDate()&&Number.isInteger(saved.viewDay)&&saved.viewDay>=0&&saved.viewDay<D.length)selectedDay=saved.viewDay;
   const indices=D.map((d,i)=>C.position(saved[i],d[2]));
   const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const notices=[
-    ['13:00 항공 출발 확정 · TW0321','14:30 간사이 도착 예정. 16:30 공항 → 호텔은 입국 상황에 따라 조정.'],
+    ['13:00 항공 출발 확정 · TW0321','14:30 간사이 도착 예정. 입국심사·수하물·세관 후 전철 이동.'],
     ['USJ 입장권·익스프레스 구매 완료','익스프레스 지정시간 미입력 · 바우처를 먼저 확인. 오전·오후 배치는 임시이며 실제 지정시간 우선.','06:50 출발·19:30 복귀는 운영시간과 체력에 따라 조정.'],
     ['14:00 전망대 입장 목표 · 주유패스 입장은 15:00까지','20:00 크루즈는 희망 시간 · 오전 교환한 승선권 시간 우선.','주유패스 구매 미정 · 당일 사용 여부 확인.'],
     ['15:30 귀국편 출발 확정 · TW0322','12:15 공항 이동 계획 · 13:15~13:30 공항 도착 목표. 당일 열차·터미널 확인.']
@@ -84,5 +84,5 @@
   });
   bar.addEventListener('click',e=>{const b=e.target.closest('button[data-mode]');if(!b)return;setMode(b.dataset.mode);window.scrollTo(0,0);});
   addEventListener('hashchange',()=>{setMode(location.hash==='#travel'?'travel':'plan',false);});
-  render();setMode(location.hash&&location.hash!=='#travel'?'plan':'travel',false);
+  render();setMode(location.hash==='#travel'?'travel':'plan',false);
 })();
