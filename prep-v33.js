@@ -15,7 +15,7 @@ const groups=[
  item('expressTimes','익스프레스 지정시간 캡처·메모'),
  item('usjApp','USJ 공식 앱에 티켓 등록·표시 확인'),
  item('usjHours','9/18 USJ 공식 운영시간 재확인',[['USJ 운영시간',L.usj]]),
- item('usjDeparture','운영시간·Express 지정시간 기준 호텔 출발시간 최종 확정')
+ item('usjDeparture','06:50 호텔 출발 · 오전 해리포터 우선 동선 최종 확인')
 ]],
 ['🛂 입국 · 서류',[
  item('passport','여권 유효기간 확인'),
@@ -32,7 +32,7 @@ const groups=[
 ['🚇 교통',[
  item('icoca','ICOCA 준비 · 나는 iPhone / 여자친구는 KIX에서 실물 구매',[['iPhone ICOCA',L.icoca],['KIX 실물 ICOCA',L.kixIcoca]]),
  item('kixHotel','KIX → 호텔: 난카이 공항급행 → 덴가차야 → 사카이스지선 → 닛폰바시 K17'),
- item('hotelUsj','호텔 → USJ 이동루트·출발시간 확인'),
+ item('hotelUsj','호텔 → USJ: 긴테츠닛폰바시 → 니시쿠조 → JR 유메사키선 → 유니버설시티'),
  item('returnAirport','귀국일 호텔 → KIX 이동시간·루트 확정'),
  item('airportRail','출발 1주 전 공항철도 시간표 재확인')
 ]],
@@ -43,14 +43,16 @@ const groups=[
  item('cardCash','카드/현금 사용 비율 정하기 · 현금만 받는 곳 대비')
 ]],
 ['🗓 일정 · 예약',[
- item('day3Discuss','DAY 3 계획안 여자친구와 최종 상의'),
- item('cruiseDecide','도톤보리 리버크루즈 이용 여부·희망 시간 결정'),
+ item('day3Discuss','DAY 3 여유 일정 최종 확인 · 구로몬 → 신세카이 → 오사카성 → 도톤보리/리버크루즈'),
+ item('cruiseDecide','도톤보리 리버크루즈 이용 여부 확정 · 20:00 희망'),
  item('cruiseMethod','리버크루즈 승선권 교환·예약 방식 최종 확인'),
- item('skyDecide','우메다 스카이빌딩 일정 확정'),
- item('skyTicket','우메다 스카이빌딩 사전 티켓 필요 여부 확인'),
- item('amazingPass','오사카 주유패스 구매 여부 최종 판단'),
+ item('amazingPass','오사카성 + 리버크루즈 둘 다 이용하면 주유패스 구매 추천 · 아직 미결제'),
  item('foodCandidates','DAY 1·DAY 3·USJ 식사 후보 정리'),
  item('restaurantReserve','인기 맛집 예약 필요 여부 확인')
+]],
+['🗣 현지 사용',[
+ item('japaneseBasics','필수 일본어 5개 저장 · 스미마센 / 후타리데스 / 코레 쿠다사이 / 오카이케이 오네가이시마스 / 아리가토 고자이마스'),
+ item('translateApp','아이폰 번역 또는 Google 번역에서 일본어 바로 쓸 수 있게 준비')
 ]],
 ['📅 출발 1주 전',[
  item('weather','오사카 날씨·태풍·비 가능성 확인'),
@@ -81,14 +83,14 @@ if(!Object.keys(saved).length){
    g0i0:'usjEntryQr',g0i1:'expressQr',g0i2:'expressTimes',g0i3:'usjApp',g0i4:'day3Discuss',
    g1i0:'passport',g1i1:'visitJapan',g1i2:'flightShot',g1i3:'hotelShot',g1i4:'esimInstall',
    g2i0:'icoca',g2i1:'kixHotel',g2i2:'hotelUsj',g2i3:'returnAirport',g2i4:'overseasCard',g2i5:'yenCash',
-   g3i0:'cruiseDecide',g3i1:'skyDecide',g3i2:'amazingPass',g3i3:'foodCandidates',g3i4:'restaurantReserve',
+   g3i0:'cruiseDecide',g3i2:'amazingPass',g3i3:'foodCandidates',g3i4:'restaurantReserve',
    g4i0:'weather',g4i1:'usjHoursWeek',g4i2:'expressTimesWeek',g4i3:'terminal',g4i4:'airportRail',g4i5:'insurance',
    g5i0:'finalWallet',g5i1:'finalDocs',g5i2:'finalDocs',g5i3:'powerbank',g5i4:'clothes',g5i5:'luggage'
   };
   Object.entries(migration).forEach(([o,n])=>{if(old[o])saved[n]=true});
   try{localStorage.setItem(key,JSON.stringify(saved))}catch{}
 }
-const priorities=['expressTimes','visitJapan','esimInstall','icoca','day3Discuss'];
+const priorities=['expressTimes','visitJapan','esimInstall','icoca','amazingPass'];
 const flat=groups.flatMap(g=>g[1]);
 root.innerHTML='<div class="prep-progress"><div class="bar"><div class="fill" id="prepFill"></div></div><strong id="prepCount">0 / 0 완료</strong></div><div class="prep-priority"><div class="prep-priority-head"><strong>⭐ 먼저 끝낼 5개</strong><span id="priorityCount"></span></div><div id="priorityList"></div></div><div class="prep-board" id="prepBoard"></div><div class="prep-note">체크 상태는 이 기기 브라우저에 저장돼요. 예전 체크 상태도 가능한 항목은 이어서 가져왔어요.</div>';
 const board=document.getElementById('prepBoard');
