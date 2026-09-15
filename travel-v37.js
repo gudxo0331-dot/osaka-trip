@@ -7,11 +7,11 @@
   try{const raw=JSON.parse(localStorage.getItem(key)||'{}');if(raw&&typeof raw==='object'&&!Array.isArray(raw))saved=raw;}catch{storageOK=false;}
   if(saved.viewDate===C.japanDate()&&Number.isInteger(saved.viewDay)&&saved.viewDay>=0&&saved.viewDay<D.length)selectedDay=saved.viewDay;
   const indices=D.map((d,i)=>C.position(saved[i],d[2]));
-  const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+  const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const notices=[
     ['13:00 항공 출발 확정 · TW0321','14:30 간사이 도착 예정. 입국심사·수하물·세관 후 전철 이동.'],
-    ['USJ Express 지정시간 확정','9/18 공식 운영 08:00–22:00 · SUPER NINTENDO WORLD 13:40–14:40.','Mario Kart 13:40–14:10 → Mine Cart Madness 14:10–14:40 순서. CHOICE A/B는 시간 지정 없음.'],
-    ['14:00 전망대 입장 목표 · 주유패스 입장은 15:00까지','20:00 크루즈는 희망 시간 · 오전 교환한 승선권 시간 우선.','주유패스 구매 미정 · 당일 사용 여부 확인.'],
+    ['USJ · 해리포터 먼저 + Nintendo 시간 고정','오전은 해리포터 집중 · Forbidden Journey 일반 대기. 13:40–14:40 SUPER NINTENDO WORLD.','Mario Kart 13:40–14:10 → Mine Cart 14:10–14:40. CHOICE B는 Flying Dinosaur 계획, CHOICE A는 JAWS/Jurassic 현장 선택.'],
+    ['DAY 3 · 10시 시작 여유 버전','구로몬 → 크루즈 승선권 확보(패스 사용 시) → 신세카이 → 오사카성 → 호텔 휴식 → 도톤보리.','20:00 크루즈 목표. 우메다 스카이빌딩은 메인에서 제외하고 교체용 선택지로 둠.'],
     ['15:30 귀국편 출발 확정 · TW0322','12:15 공항 이동 계획 · 13:15~13:30 공항 도착 목표. 당일 열차·터미널 확인.']
   ];
   const memoKey='osakaTravelMemosV1';
